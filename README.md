@@ -2,8 +2,9 @@
 This hack job of a program needs major work but so far it works? 
 
 ```
-python3 main.py lookup -b com.bundle.id -c US historyver -s http://192.168.0.115:9000 
+python3 main.py lookup -b com.bundle.id -c US historyver -s http://(ip of iTunes):9000 
 ```
+Needs iTunesServer (Read "Manually way" below) 
 
 # IPATool-py
 
