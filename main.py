@@ -75,6 +75,7 @@ class IPATool(object):
         self.jsonOut = None
     
     def tool_main(self):
+        #TODO: change
         commparser = argparse.ArgumentParser(description='IPATool-Python Commands.', add_help=False)
         subp = commparser.add_subparsers(dest='command', required=True)
         lookup_p = subp.add_parser('lookup')
@@ -113,6 +114,8 @@ class IPATool(object):
 
         his_p = subp.add_parser('historyver')
         his_p.add_argument('--appId', '-i', dest='appId')
+        his_p.add_argument('--purchase', action='store_true')
+        his_p.add_argument('--output-dir', '-o', dest='output_dir', default='.')
         add_auth_options(his_p)
         his_p.set_defaults(func=self.handleHistoryVersion)
 
@@ -229,6 +232,10 @@ class IPATool(object):
             self._outputJson({
                 "appVerIds": downInfo.metadata.softwareVersionExternalIdentifiers
             })
+
+            for i in downInfo.metadata.softwareVersionExternalIdentifiers:
+                args.appVerId = i
+                self.handleDownload(args)
         except StoreException as e:
             self._handleStoreException(e)
 
@@ -295,13 +302,20 @@ class IPATool(object):
                 appContentDir = [c for c in ipaFile.namelist() if c.startswith('Payload/') and len(c.strip('/').split('/')) == 2][0]
                 appContentDir = appContentDir.rstrip('/')
 
-                scManifestData = ipaFile.read(appContentDir + '/SC_Info/Manifest.plist')
-                scManifest = plistlib.loads(scManifestData)
-
+                #Try to get the Manifest.plist file, since it doesn't always exist.
+                #CFBundleExecutable should (?) have the name????
                 sinfs = {c.id: c.sinf for c in downInfo.sinfs}
-                for i, sinfPath in enumerate(scManifest['SinfPaths']):
-                    ipaFile.writestr(appContentDir + '/' + sinfPath, sinfs[i])
-
+                try:
+                    scManifestData = ipaFile.read(appContentDir + '/SC_Info/Manifest.plist')
+                    scManifest = plistlib.loads(scManifestData)
+                    for i, sinfPath in enumerate(scManifest['SinfPaths']):
+                        ipaFile.writestr(appContentDir + '/' + sinfPath, sinfs[i])
+                except:
+                    logger.info('Manifest.plist does not exist! Assuming it is an old app without one...')
+                    infoListData = ipaFile.read(appContentDir + '/Info.plist') #Is this not loaded anywhere yet?
+                    infoList = plistlib.loads(infoListData)
+                    #Assuming there is only one .sinf file, hence the 0
+                    ipaFile.writestr(appContentDir + '/SC_Info/'+infoList['CFBundleExecutable']+".sinf", sinfs[0])
             logger.info("Downloaded ipa to %s" % filename)
 
             self._outputJson({
