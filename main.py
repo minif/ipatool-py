@@ -78,6 +78,7 @@ class IPATool(object):
         #TODO: change
         commparser = argparse.ArgumentParser(description='IPATool-Python Commands.', add_help=False)
         subp = commparser.add_subparsers(dest='command', required=True)
+        '''
         lookup_p = subp.add_parser('lookup')
         id_group = lookup_p.add_mutually_exclusive_group(required=True)
         id_group.add_argument('--bundle-id', '-b', dest='bundle_id')
@@ -85,7 +86,7 @@ class IPATool(object):
         lookup_p.add_argument('--country', '-c', dest='country', required=True)
         lookup_p.add_argument('--get-verid', dest='get_verid', action='store_true')
         lookup_p.set_defaults(func=self.handleLookup)
-
+        '''
         def add_auth_options(p):
             auth_p = p.add_argument_group('Auth Options', 'Must specify either Apple ID & Password, or iTunes Server URL')
             appleid = auth_p.add_argument('--appleid', '-e')
@@ -102,7 +103,7 @@ class IPATool(object):
             auth_p = p.add_mutually_exclusive_group(required=True)
             auth_p._group_actions.append(passwd)
             auth_p._group_actions.append(itunessrv)
-
+        '''
         down_p = subp.add_parser('download')
         add_auth_options(down_p)
         down_p.add_argument('--appId', '-i', dest='appId')
@@ -118,6 +119,28 @@ class IPATool(object):
         his_p.add_argument('--output-dir', '-o', dest='output_dir', default='.')
         add_auth_options(his_p)
         his_p.set_defaults(func=self.handleHistoryVersion)
+        '''
+
+        scr_single_p = subp.add_parser('single')
+        add_auth_options(scr_single_p)
+        scr_single_p.add_argument('--purchase', action='store_true')
+        scr_single_p.add_argument('--latest', '-l', action='store_true')
+        scr_single_p.add_argument('--all', '-a', action='store_true')
+        scr_single_p.add_argument('--country', '-c', dest='country', default='US')
+        scr_single_p.add_argument('--appId', '-i', dest='appId')
+        scr_single_p.add_argument('--bundleId', '-b', dest='bundle_id')
+        scr_single_p.add_argument('--output-dir', '-o', dest='output_dir', default='.')
+        scr_single_p.set_defaults(func=self.handleSingleDownload)
+
+        scr_file_p = subp.add_parser('file')
+        add_auth_options(scr_file_p)
+        scr_file_p.add_argument('--purchase', action='store_true')
+        scr_file_p.add_argument('--country', '-c', dest='country', default='US')
+        scr_file_p.add_argument('--latest', '-l', action='store_true')
+        scr_file_p.add_argument('--all', '-a', action='store_true')
+        scr_file_p.add_argument('--path', '-f', dest='file_path', required=True)
+        scr_file_p.add_argument('--output-dir', '-o', dest='output_dir', default='.')
+        scr_file_p.set_defaults(func=self.handleFileDownload)
 
         parser = argparse.ArgumentParser(description='IPATool-Python.', parents=[commparser])
         parser.add_argument('--log-level', '-l', dest='log_level', default='info',
@@ -142,6 +165,50 @@ class IPATool(object):
     def _outputJson(self, obj):
         self.jsonOut = obj
 
+    def handleSingleDownload(self, args):
+        logger.info(args.all)
+        logger.info(args.appId)
+        logger.info(args.bundle_id)
+        if args.bundle_id:
+            self.handleLookup(args)
+        if args.purchase:
+            ##Not working?
+            self.purchaseApp(args, self.appId)
+
+        ext_ids = []
+        if args.all:
+            ext_ids = self.handleHistoryVersion(args)
+        if args.latest:
+            all_ext_ids = self.handleHistoryVersion(args)
+            ext_ids.append(all_ext_ids[-1])
+        logger.info(ext_ids)
+
+        for i in ext_ids:
+            self.handleDownload(args, self.appId, i)
+
+
+
+    def handleFileDownload(self, args):
+        logger.critical("This is a WIP")
+
+    def purchaseApp(self, args, id):
+        try:
+            appleid = args.appleid
+            Store = self._get_StoreClient(args)
+            logger.info('Try to purchasing appId %s' % (id))
+            try:
+                Store.purchase(id)
+            except StoreException as e:
+                if e.errMsg == 'purchased_before':
+                    logger.warning('You have already purchased appId %s before' % (id))
+                else:
+                    raise
+            downResp = Store.download(self.appId, 999999)
+            #For some reason this is the only way to make it work
+            #TODO better solution to fixing this
+        except StoreException as e:
+            self._handleStoreException(e)
+
     def handleLookup(self, args):
         if args.bundle_id:
             s = 'BundleID %s' % args.bundle_id
@@ -165,11 +232,14 @@ class IPATool(object):
             "bundleId": appInfo.bundleId,
         }
 
+        """
         if args.get_verid:
             logger.info("Retriving verId using iTunes webpage...")
             verId = iTunes.getAppVerId(self.appId, args.country)
             logger.info("Got current verId using iTunes webpage: %s" % verId)
             ret["appVerId"] = verId
+            
+        """
 
         self._outputJson(ret)
 
@@ -233,20 +303,15 @@ class IPATool(object):
                 "appVerIds": downInfo.metadata.softwareVersionExternalIdentifiers
             })
 
-            for i in downInfo.metadata.softwareVersionExternalIdentifiers:
-                args.appVerId = i
-                self.handleDownload(args)
+            return downInfo.metadata.softwareVersionExternalIdentifiers
         except StoreException as e:
             self._handleStoreException(e)
+        return []
 
-    def handleDownload(self, args):
-        if args.appId:
-            self.appId = args.appId
-        if args.appVerId:
-            self.appVerId = args.appVerId
+    def handleDownload(self, args, id, extID):
 
-        if not self.appId:
-            logger.fatal("appId not supplied!")
+        if not id:
+            logger.fatal("appId not supplied! This message shound not display")
             return
         
         try:
@@ -254,18 +319,18 @@ class IPATool(object):
             Store = self._get_StoreClient(args)
 
             if args.purchase:
-                logger.info('Try to purchasing appId %s' % (self.appId))
+                logger.info('Try to purchasing appId %s' % (id))
                 try:
-                    Store.purchase(self.appId)
+                    Store.purchase(id)
                 except StoreException as e:
                     if e.errMsg == 'purchased_before':
-                        logger.warning('You have already purchased appId %s before' % (self.appId))
+                        logger.warning('You have already purchased appId %s before' % (id))
                     else:
                         raise
             
-            logger.info('Retriving download info for appId %s%s' % (self.appId, " with versionId %s" % self.appVerId if self.appVerId else ""))
+            logger.info('Retriving download info for appId %s%s' % (id, " with versionId %s" % extID if extID else ""))
 
-            downResp = Store.download(self.appId, self.appVerId)
+            downResp = Store.download(id, extID)
             
             if not downResp.songList:
                 logger.fatal("failed to get app download info!")

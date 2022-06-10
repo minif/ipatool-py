@@ -1,9 +1,33 @@
 # Scraping ready version
-This hack job of a program needs major work but so far it works? 
+This is a WIP version of ipatool-py that should allow for mass downloading for scraping purposes.
 
+### Usage:
 ```
-python3 main.py lookup -b com.bundle.id -c US historyver -s http://(ip of iTunes):9000 
+main.py single [-h] [--appleid APPLEID]
+                      (--password PASSWORD | --itunes-server ITUNES_SERVER)
+                      [--purchase] [--latest] [--all] [--country COUNTRY]
+                      [--appId APPID] [--bundleId BUNDLE_ID]
+                      [--output-dir OUTPUT_DIR]
 ```
+
+- Currently tested with `--itunes-server | -s`, but Apple ID should work (Not with 2FA)
+	- Follow Manually way below to set up iTunes Server
+	- You may use a VM, but be sure you can communicate it via HTTP on port 9000
+- Use `--purchase` to only purchase an app, `--latest | -l` to download the latest, or `--all | -a` to get all versions
+- Use `--country` to select a country that is not USA
+- Use `--appId | -i` to input an app ID or `--bundleId | -b` to look up a bundle ID
+- Use `--output-dir | -o` to select location for IPA files
+
+### Example:
+This should download all versions of "ABC Animals Coloring Book" using the iTunes Server on 192.168.0.102
+```
+python3 main.py single -s http://192.168.0.102:9000 -b com.kanapot.ABCColoring --all
+```
+
+### Multi-app scraping
+This is WIP
+
+Help is appreciated!
 Needs iTunesServer (Read "Manually way" below) 
 
 # IPATool-py
