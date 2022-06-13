@@ -25,9 +25,20 @@ python3 main.py single -s http://192.168.0.102:9000 -b com.kanapot.ABCColoring -
 ```
 
 ### Multi-app scraping
-This is WIP
+```
+main.py file [-h] [--appleid APPLEID]
+                    (--password PASSWORD | --itunes-server ITUNES_SERVER)
+                    [--purchase] [--country COUNTRY] [--latest] [--all] --path
+                    FILE_PATH [--output-dir OUTPUT_DIR]
 
-Help is appreciated!
+```
+- Use `--path` to select a file containing app IDs to download
+	- File must be .txt and IDs must be line-seperated.
+- Use `--purchase` to only purchase an app, `--latest | -l` to download the latest, or `--all | -a` to get all versions
+- Use `--country` to select a country that is not USA
+- Use `--output-dir | -o` to select location for IPA files
+
+Help is appreciated! Needs major refactoring and testing.
 Needs iTunesServer (Read "Manually way" below) 
 
 # IPATool-py

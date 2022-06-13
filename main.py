@@ -166,44 +166,47 @@ class IPATool(object):
         self.jsonOut = obj
 
     def handleSingleDownload(self, args):
-        logger.info(args.all)
-        logger.info(args.appId)
-        logger.info(args.bundle_id)
+        self.appId = args.appId
         if args.bundle_id:
             self.handleLookup(args)
-        if args.purchase:
-            ##Not working?
-            self.purchaseApp(args, self.appId)
-
-        ext_ids = []
-        if args.all:
-            ext_ids = self.handleHistoryVersion(args)
-        if args.latest:
-            all_ext_ids = self.handleHistoryVersion(args)
-            ext_ids.append(all_ext_ids[-1])
-        logger.info(ext_ids)
-
-        for i in ext_ids:
-            self.handleDownload(args, self.appId, i)
-
-
+        self.handleDownloading(args, self.appId)
 
     def handleFileDownload(self, args):
-        logger.critical("This is a WIP")
+        f = open(args.file_path, "r")
+        logger.info("Opened %s to read files from",args.file_path)
+        for appId in f:
+            self.handleDownloading(args, appId.rstrip())
+        f.close()
+
+    def handleDownloading(self, args, appId):
+        logger.info("Downloading app %s",appId)
+        if args.purchase:
+            self.purchaseApp(args, appId)
+            return
+        ext_ids = []
+        if args.all:
+            ext_ids = self.handleHistoryVersion(args, appId)
+        if args.latest:
+            all_ext_ids = self.handleHistoryVersion(args, appId)
+            ext_ids.append(all_ext_ids[-1])
+        logger.info(ext_ids)
+        for i in ext_ids:
+            self.handleDownload(args, appId, i)
 
     def purchaseApp(self, args, id):
         try:
+            logger.info('Try to purchasing appId %s' % (id))
             appleid = args.appleid
             Store = self._get_StoreClient(args)
-            logger.info('Try to purchasing appId %s' % (id))
             try:
-                Store.purchase(id)
+               # Store.purchase(id)
+                downResp = Store.download(id, 999999)
             except StoreException as e:
-                if e.errMsg == 'purchased_before':
+                if e.errMsg == 'buyProduct':
                     logger.warning('You have already purchased appId %s before' % (id))
                 else:
                     raise
-            downResp = Store.download(self.appId, 999999)
+
             #For some reason this is the only way to make it work
             #TODO better solution to fixing this
         except StoreException as e:
@@ -278,21 +281,14 @@ class IPATool(object):
         logger.fatal("Store %s failed! Message: %s%s" % (e.req, e.errMsg, " (errorType %s)" % e.errType if e.errType else ''))
         logger.fatal("    Raw Response: %s" % (e.resp.as_dict()))
 
-    def handleHistoryVersion(self, args):
-        if args.appId:
-            self.appId = args.appId
-
-        if not self.appId:
-            logger.fatal("appId not supplied!")
-            return
-
-        logger.info('Retriving history version for appId %s' % self.appId)
+    def handleHistoryVersion(self, args, appId):
+        logger.info('Retriving history version for appId %s' % appId)
 
         try:
             Store = self._get_StoreClient(args)
 
-            logger.info('Retriving download info for appId %s' % (self.appId))
-            downResp = Store.download(self.appId)
+            logger.info('Retriving download info for appId %s' % (appId))
+            downResp = Store.download(appId)
             
             if not downResp.songList:
                 logger.fatal("failed to get app download info!")
@@ -309,7 +305,6 @@ class IPATool(object):
         return []
 
     def handleDownload(self, args, id, extID):
-
         if not id:
             logger.fatal("appId not supplied! This message shound not display")
             return
@@ -341,7 +336,7 @@ class IPATool(object):
             appId = downInfo.songId
             appBundleId = downInfo.metadata.softwareVersionBundleId
             appVerId = downInfo.metadata.softwareVersionExternalIdentifier
-            appVer = downInfo.metadata.bundleShortVersionString
+            appVer = downInfo.metadata.bundleVersion
 
             logger.info(f'Downloading app {appName} ({appBundleId}) with appId {appId} (version {appVer}, versionId {appVerId})')
 
