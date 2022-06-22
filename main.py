@@ -130,6 +130,7 @@ class IPATool(object):
         scr_single_p.add_argument('--appId', '-i', dest='appId')
         scr_single_p.add_argument('--bundleId', '-b', dest='bundle_id')
         scr_single_p.add_argument('--output-dir', '-o', dest='output_dir', default='.')
+        scr_single_p.add_argument('--err-log', dest='err_log', default='./error.txt')
         scr_single_p.set_defaults(func=self.handleSingleDownload)
 
         scr_file_p = subp.add_parser('file')
@@ -140,6 +141,7 @@ class IPATool(object):
         scr_file_p.add_argument('--all', '-a', action='store_true')
         scr_file_p.add_argument('--path', '-f', dest='file_path', required=True)
         scr_file_p.add_argument('--output-dir', '-o', dest='output_dir', default='.')
+        scr_file_p.add_argument('--err-log', dest='err_log', default='./error.txt')
         scr_file_p.set_defaults(func=self.handleFileDownload)
 
         parser = argparse.ArgumentParser(description='IPATool-Python.', parents=[commparser])
@@ -179,19 +181,26 @@ class IPATool(object):
         f.close()
 
     def handleDownloading(self, args, appId):
-        logger.info("Downloading app %s",appId)
-        if args.purchase:
-            self.purchaseApp(args, appId)
-            return
-        ext_ids = []
-        if args.all:
-            ext_ids = self.handleHistoryVersion(args, appId)
-        if args.latest:
-            all_ext_ids = self.handleHistoryVersion(args, appId)
-            ext_ids.append(all_ext_ids[-1])
-        logger.info(ext_ids)
-        for i in ext_ids:
-            self.handleDownload(args, appId, i)
+        try:
+            logger.info("Downloading app %s",appId)
+            if args.purchase:
+                self.purchaseApp(args, appId)
+                return
+            ext_ids = []
+            if args.all:
+                ext_ids = self.handleHistoryVersion(args, appId)
+            if args.latest:
+                all_ext_ids = self.handleHistoryVersion(args, appId)
+                ext_ids.append(all_ext_ids[-1])
+            logger.info(ext_ids)
+            for i in ext_ids:
+                self.handleDownload(args, appId, i)
+        except Exception as t:
+            logger.info("Logging error with message: %s",t)
+            f = open(args.err_log, "a")
+            f.write("%s\tMessage: %s\n"% (appId, t))
+            f.close()
+
 
     def purchaseApp(self, args, id):
         try:
@@ -222,6 +231,7 @@ class IPATool(object):
         appInfos = iTunes.lookup(bundleId=args.bundle_id, appId=args.appId, country=args.country)
         if appInfos.resultCount != 1:
             logger.fatal("Failed to find app in country %s with %s" % (args.country, s))
+            raise
             return
         appInfo = appInfos.results[0]
         logger.info("Found app:\n\tName: %s\n\tVersion: %s\n\tbundleId: %s\n\tappId: %s" % (appInfo.trackName, appInfo.version, appInfo.bundleId, appInfo.trackId))
@@ -280,6 +290,7 @@ class IPATool(object):
         e = _e # type: StoreException
         logger.fatal("Store %s failed! Message: %s%s" % (e.req, e.errMsg, " (errorType %s)" % e.errType if e.errType else ''))
         logger.fatal("    Raw Response: %s" % (e.resp.as_dict()))
+        raise
 
     def handleHistoryVersion(self, args, appId):
         logger.info('Retriving history version for appId %s' % appId)
@@ -307,6 +318,7 @@ class IPATool(object):
     def handleDownload(self, args, id, extID):
         if not id:
             logger.fatal("appId not supplied! This message shound not display")
+            raise
             return
         
         try:

@@ -17,6 +17,7 @@ main.py single [-h] [--appleid APPLEID]
 - Use `--country` to select a country that is not USA
 - Use `--appId | -i` to input an app ID or `--bundleId | -b` to look up a bundle ID
 - Use `--output-dir | -o` to select location for IPA files
+- Use `--err-log` to select location for error logging
 
 ### Example:
 This should download all versions of "ABC Animals Coloring Book" using the iTunes Server on 192.168.0.102
@@ -37,6 +38,7 @@ main.py file [-h] [--appleid APPLEID]
 - Use `--purchase` to only purchase an app, `--latest | -l` to download the latest, or `--all | -a` to get all versions
 - Use `--country` to select a country that is not USA
 - Use `--output-dir | -o` to select location for IPA files
+- Use `--err-log` to select location for error logging
 
 Help is appreciated! Needs major refactoring and testing.
 Needs iTunesServer (Read "Manually way" below) 
