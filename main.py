@@ -126,6 +126,7 @@ class IPATool(object):
         scr_single_p.add_argument('--purchase', action='store_true')
         scr_single_p.add_argument('--latest', '-l', action='store_true')
         scr_single_p.add_argument('--all', '-a', action='store_true')
+        scr_single_p.add_argument('--exid', dest='exid')
         scr_single_p.add_argument('--country', '-c', dest='country', default='US')
         scr_single_p.add_argument('--appId', '-i', dest='appId')
         scr_single_p.add_argument('--bundleId', '-b', dest='bundle_id')
@@ -192,9 +193,17 @@ class IPATool(object):
             if args.latest:
                 all_ext_ids = self.handleHistoryVersion(args, appId)
                 ext_ids.append(all_ext_ids[-1])
+            if args.exid:
+            	ext_ids.append(args.exid)
             logger.info(ext_ids)
             for i in ext_ids:
-                self.handleDownload(args, appId, i)
+                try:
+                    self.handleDownload(args, appId, i)
+                except Exception as t:
+                    logger.info("Logging error for EVID %s with message: %s",i,t)
+                    f = open(args.err_log, "a")
+                    f.write("%s\t%s\tMessage: %s\n"% (appId, i,t))
+                    f.close()
         except Exception as t:
             logger.info("Logging error with message: %s",t)
             f = open(args.err_log, "a")
@@ -349,6 +358,11 @@ class IPATool(object):
             appBundleId = downInfo.metadata.softwareVersionBundleId
             appVerId = downInfo.metadata.softwareVersionExternalIdentifier
             appVer = downInfo.metadata.bundleVersion
+            appVerLong = downInfo.metadata.bundleShortVersionString
+            if appVerLong != None:
+            	appVer = appVerLong
+            	logger.info("Using bundleShortVersionString")
+
 
             logger.info(f'Downloading app {appName} ({appBundleId}) with appId {appId} (version {appVer}, versionId {appVerId})')
 
@@ -357,8 +371,9 @@ class IPATool(object):
                                             appVer,
                                             appId,
                                             appVerId)
-            # else:
-            #     filename = '%s-%s.ipa' % (self.appId, appVerId)
+                                            
+            #filename = '%s %s.ipa' % (appName,
+            #                                appVer)
 
             filepath = os.path.join(args.output_dir, filename)
             logger.info("Downloading ipa to %s" % filepath)
