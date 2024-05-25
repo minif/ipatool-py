@@ -1,3 +1,6 @@
+# Disclaimer
+This fork is abandoned. I don't really reccomend using it because all of its features have now been implemented into ipatool-py. This repo is here for archival purposes.
+
 # Scraping ready version
 This is a WIP version of ipatool-py that should allow for mass downloading for scraping purposes.
 
