@@ -9,6 +9,8 @@ from reqs.schemas.store_buyproduct_req import StoreBuyproductReq
 from reqs.schemas.store_buyproduct_resp import StoreBuyproductResp
 from reqs.schemas.store_download_req import StoreDownloadReq
 from reqs.schemas.store_download_resp import StoreDownloadResp
+from reqs.schemas.store_purchased_resp import StorePurchasedResp
+from reqs.schemas.store_purchased_count_resp import StorePurchasedCountResp
 
 class StoreException(Exception):
     def __init__(self, req, resp, errMsg, errType=None):
@@ -154,6 +156,21 @@ class StoreClient(object):
         resp = StoreDownloadResp.from_dict(d)
         if resp.cancel_purchase_batch:
             raise StoreException("volumeStoreDownloadProduct", d, resp.customerMessage, '%s-%s' % (resp.failureType, resp.metrics))
+        return resp
+        
+    def purchases(self, year, date="all"):
+        hdrs = {
+               "Accept": "*/*",
+                "User-Agent": "iTunes/12.6.5 (Windows; Microsoft Windows 10.0 x64 Buisness Edition (Build 22631); x64) AppleWebKit/7605.1033.1002.2",
+           }
+        
+        url = "https://p28-buy.itunes.apple.com/commerce/account/purchases?isDeepLink=false&isJsonApiFormat=true&page=1&range=%s-%s" % (year,date)
+        r = self.sess.get(url,
+                           headers=hdrs)
+        d = json.loads(r.content)
+        resp = StorePurchasedResp.from_dict(d)
+        #if resp.cancel_purchase_batch:
+            #raise StoreException("purchases", d, resp.customerMessage, '%s-%s' % (resp.failureType, resp.metrics))
         return resp
 
     def buyProduct(self, appId, appVer='', productType='C', pricingParameters='STDQ'):

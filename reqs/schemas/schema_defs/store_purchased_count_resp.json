@@ -1,0 +1,67 @@
+{
+  "title": "Store Purchased Count Resp",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "dates": {
+              "type": "object",
+              "properties": {
+                "years": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "object",
+                      "properties": {
+                        "value-formatted": {
+                          "type": "string"
+                        },
+                        "value": {
+                          "type": "string"
+                        },
+                        "items": {
+                          "type": "integer"
+                         }
+                      },
+                     "required": [
+                        "value-formatted",
+                        "value",
+                        "items"
+                      ]
+                    }
+                  }
+                }
+              },
+              "required": [
+                "years"
+              ]
+            }
+          },
+          "required": [
+            "dates"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "attributes",
+        "id",
+        "type"
+      ]
+    }
+  },
+  "required": [
+    "data"
+  ]
+}

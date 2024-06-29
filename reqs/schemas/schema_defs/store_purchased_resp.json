@@ -1,0 +1,338 @@
+{
+  "title": "Store Purchased Resp",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "disabled-storefront": {
+              "type": "boolean"
+            },
+            "alerts": {
+              "type": "array",
+              "items": {
+                "items": {}
+              }
+            },
+            "purchases": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "billed-to": {
+                    "type": "object",
+                    "properties": {
+                      "address": {
+                        "type": "object",
+                        "properties": {
+                          "addressOfficialCity": {
+                            "type": "string"
+                          },
+                          "addressOfficialCountryCode": {
+                            "type": "string"
+                          },
+                          "addressOfficialStateProvince": {
+                            "type": "string"
+                          },
+                          "addressOfficialLineFirst": {
+                            "type": "string"
+                          },
+                          "addressOfficialLineSecond": {
+                            "type": "null"
+                          },
+                          "addressOfficialLineThird": {
+                            "type": "null"
+                          },
+                          "addressOfficialPostalCode": {
+                            "type": "string"
+                          },
+                          "billingFirstName": {
+                            "type": "string"
+                          },
+                          "billingLastName": {
+                            "type": "string"
+                          },
+                          "billingNamePrefix": {
+                            "type": "null"
+                          }
+                        },
+                        "required": [
+                          "addressOfficialCity",
+                          "addressOfficialCountryCode",
+                          "addressOfficialStateProvince",
+                          "addressOfficialLineFirst",
+                          "addressOfficialLineSecond",
+                          "addressOfficialLineThird",
+                          "addressOfficialPostalCode",
+                          "billingFirstName",
+                          "billingLastName",
+                          "billingNamePrefix"
+                        ]
+                      },
+                      "email": {
+                        "type": "string"
+                      },
+                      "is-vat": {
+                        "type": "boolean"
+                      },
+                      "receipt-label": {
+                        "type": "string"
+                      },
+                      "methods": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "amount": {
+                              "type": "string"
+                            },
+                            "name": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "amount",
+                            "name"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "address",
+                      "email",
+                      "is-vat",
+                      "receipt-label"
+                    ]
+                  },
+                  "id": {
+                    "type": "integer"
+                  },
+                  "invoice-date": {
+                    "type": "string"
+                  },
+                  "items": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "kind": {
+                          "type": "string"
+                        },
+                        "displayable-kind": {
+                          "type": "string"
+                        },
+                        "report-a-problem-url": {
+                          "type": "string"
+                        },
+                        "artist-name": {
+                          "type": "string"
+                        },
+                        "item-id": {
+                          "type": "string"
+                        },
+                        "item-name": {
+                          "type": "string"
+                        },
+                        "item-url": {
+                          "type": "string"
+                        },
+                        "seller": {
+                          "type": "string"
+                        },
+                        "artwork-template-url": {
+                          "type": "string"
+                        },
+                        "artwork-height": {
+                          "type": "integer"
+                        },
+                        "artwork-width": {
+                          "type": "integer"
+                        },
+                        "is-subscription": {
+                          "type": "boolean"
+                        },
+                        "price": {
+                          "type": "string"
+                        },
+                        "purchased-from": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "partially-refunded": {
+                          "type": "boolean"
+                        },
+                        "refunded": {
+                          "type": "boolean"
+                        },
+                        "cancelled": {
+                          "type": "boolean"
+                        },
+                        "refund-amount": {
+                          "type": "null"
+                        },
+                        "purchase-date": {
+                          "type": "string"
+                        },
+                        "is-gift-item": {
+                          "type": "boolean"
+                        },
+                        "item-title": {
+                          "type": "string"
+                        },
+                        "subscription": {
+                          "type": "string"
+                        },
+                        "is-invoice-item-name": {
+                          "type": "boolean"
+                        },
+                        "price-from-pli": {
+                          "type": "string"
+                        },
+                        "quantity": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "kind",
+                        "displayable-kind",
+                        "report-a-problem-url",
+                        "artist-name",
+                        "item-id",
+                        "item-name",
+                        "item-url",
+                        "seller",
+                        "artwork-template-url",
+                        "artwork-height",
+                        "artwork-width",
+                        "is-subscription",
+                        "price",
+                        "purchased-from",
+                        "partially-refunded",
+                        "refunded",
+                        "cancelled",
+                        "refund-amount",
+                        "purchase-date",
+                        "is-gift-item",
+                        "item-title"
+                      ]
+                    }
+                  },
+                  "order-id": {
+                    "type": "string"
+                  },
+                  "pending": {
+                    "type": "boolean"
+                  },
+                  "sub-total": {
+                    "type": "string"
+                  },
+                  "tax": {
+                    "type": "string"
+                  },
+                  "total": {
+                    "type": "string"
+                  },
+                  "from-email-invoice": {
+                    "type": "boolean"
+                  },
+                  "is-chargeback": {
+                    "type": "boolean"
+                  },
+                  "show-tax": {
+                    "type": "boolean"
+                  },
+                  "show-sub-total": {
+                    "type": "boolean"
+                  },
+                  "can-be-cleared-with-store-credit": {
+                    "type": "boolean"
+                  },
+                  "document-number": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "billed-to",
+                  "id",
+                  "invoice-date",
+                  "items",
+                  "order-id",
+                  "pending",
+                  "sub-total",
+                  "tax",
+                  "total",
+                  "from-email-invoice",
+                  "is-chargeback",
+                  "show-tax",
+                  "show-sub-total",
+                  "can-be-cleared-with-store-credit"
+                ]
+              }
+            },
+            "isActiveMediaLinkedAccount": {
+              "type": "boolean"
+            },
+            "range": {
+              "type": "object",
+              "properties": {
+                "start": {
+                  "type": "string"
+                },
+                "displayable-range": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "start",
+                "displayable-range"
+              ]
+            },
+            "storefront-id": {
+              "type": "integer"
+            },
+            "is-complete": {
+              "type": "boolean"
+            },
+            "can-pay-with-store-credit-enabled": {
+              "type": "boolean"
+            },
+            "pagination-token": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "disabled-storefront",
+            "alerts",
+            "purchases",
+            "isActiveMediaLinkedAccount",
+            "range",
+            "storefront-id",
+            "is-complete",
+            "can-pay-with-store-credit-enabled",
+            "pagination-token"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "attributes"
+      ]
+    }
+  },
+  "required": [
+    "data"
+  ]
+}
