@@ -158,6 +158,21 @@ class StoreClient(object):
             raise StoreException("volumeStoreDownloadProduct", d, resp.customerMessage, '%s-%s' % (resp.failureType, resp.metrics))
         return resp
         
+    def purchasesCount(self):
+        hdrs = {
+               "Accept": "*/*",
+                "User-Agent": "iTunes/12.6.5 (Windows; Microsoft Windows 10.0 x64 Buisness Edition (Build 22631); x64) AppleWebKit/7605.1033.1002.2",
+           }
+        
+        url = "https://p25-buy.itunes.apple.com/commerce/account/purchases/count" 
+        r = self.sess.get(url,
+                           headers=hdrs)
+        d = json.loads(r.content)
+        resp = StorePurchasedCountResp.from_dict(d)
+        #if resp.cancel_purchase_batch:
+            #raise StoreException("purchases", d, resp.customerMessage, '%s-%s' % (resp.failureType, resp.metrics))
+        return resp
+        
     def purchases(self, year, date="all"):
         hdrs = {
                "Accept": "*/*",
