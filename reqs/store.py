@@ -173,13 +173,13 @@ class StoreClient(object):
             #raise StoreException("purchases", d, resp.customerMessage, '%s-%s' % (resp.failureType, resp.metrics))
         return resp
         
-    def purchases(self, year, date="all"):
+    def purchases(self, year, date="all", page=1):
         hdrs = {
                "Accept": "*/*",
                 "User-Agent": "iTunes/12.6.5 (Windows; Microsoft Windows 10.0 x64 Buisness Edition (Build 22631); x64) AppleWebKit/7605.1033.1002.2",
            }
         
-        url = "https://p28-buy.itunes.apple.com/commerce/account/purchases?isDeepLink=false&isJsonApiFormat=true&page=1&range=%s-%s" % (year,date)
+        url = "https://p28-buy.itunes.apple.com/commerce/account/purchases?isDeepLink=false&isJsonApiFormat=true&page=%s&range=%s-%s" % (str(page),year,date)
         r = self.sess.get(url,
                            headers=hdrs)
         d = json.loads(r.content)
